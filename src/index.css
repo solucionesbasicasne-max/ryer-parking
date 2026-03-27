@@ -44,14 +44,178 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ═══════════════════════════════════════════
+   Layout principal
+═══════════════════════════════════════════ */
 .app-container {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
 }
 
-@media (max-width: 1024px) { .app-container { grid-template-columns: 80px 1fr; } }
-@media (max-width: 768px) { .app-container { grid-template-columns: 1fr; padding-bottom: 70px; } }
+@media (max-width: 1024px) {
+  .app-container { grid-template-columns: 80px 1fr; }
+}
+
+@media (max-width: 768px) {
+  /* En móvil el sidebar es un drawer fixed, no ocupa columna del grid */
+  .app-container { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   Sidebar / Drawer
+═══════════════════════════════════════════ */
+.sidebar {
+  height: calc(100vh - 2rem);
+  margin: 1rem;
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Nav labels se ocultan en tablet */
+@media (max-width: 1024px) {
+  .nav-label { display: none; }
+  .sidebar { margin: 0.5rem; }
+}
+
+/* ── Mobile: drawer desde la izquierda ── */
+@media (max-width: 768px) {
+  /* El sidebar se convierte en un drawer fijo */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    margin: 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Los nav-labels se muestran en el drawer móvil */
+  .sidebar .nav-label { display: inline; }
+
+  /* Ocultar el botón de cierre en desktop */
+  .sidebar-close-btn { display: flex !important; }
+}
+
+/* Botón ✕ dentro del drawer — visible solo en móvil */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.4rem;
+  background: var(--bg-accent);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  z-index: 10;
+}
+.sidebar-close-btn:hover { color: var(--text-primary); background: var(--border); }
+
+/* ── Overlay oscuro detrás del drawer ── */
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════
+   Top bar / Header
+═══════════════════════════════════════════ */
+.app-header {
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 0.75rem;
+}
+
+/* Botón hamburguesa — oculto en desktop, visible en móvil */
+.mobile-menu-btn {
+  display: none;
+  padding: 0.5rem;
+  background: var(--bg-accent);
+  border-radius: 8px;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+}
+
+.page-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.caja-badge {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+}
+
+.user-chip {
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .user-chip p:last-child { display: none; }
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  flex-shrink: 0;
+}
 
 .card {
   background: var(--bg-secondary);
