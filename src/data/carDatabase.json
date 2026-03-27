@@ -1,0 +1,90 @@
+{
+  "brands": [
+    {
+      "name": "Toyota",
+      "models": ["Corolla", "Camry", "RAV4", "Hilux", "Tacoma", "Yaris", "Prius", "Highlander", "Land Cruiser", "4Runner"]
+    },
+    {
+      "name": "Nissan",
+      "models": ["Sentra", "Altima", "Versa", "March", "Frontier", "Kicks", "X-Trail", "Pathfinder", "Murano", "Titan"]
+    },
+    {
+      "name": "Ford",
+      "models": ["F-150", "Mustang", "Explorer", "Escape", "Ranger", "Edge", "EcoSport", "Bronco", "Focus", "Fiesta"]
+    },
+    {
+      "name": "Chevrolet",
+      "models": ["Silverado", "Equinox", "Trax", "Spark", "Aveo", "Onix", "Cruze", "Malibu", "Camaro", "Tahoe", "Suburban"]
+    },
+    {
+      "name": "Honda",
+      "models": ["Civic", "Accord", "CR-V", "HR-V", "Pilot", "Odyssey", "Fit", "City", "Ridgeline"]
+    },
+    {
+      "name": "Volkswagen",
+      "models": ["Jetta", "Golf", "Tiguan", "Taos", "Polo", "Vento", "Virtus", "Passat", "Teramont"]
+    },
+    {
+      "name": "Hyundai",
+      "models": ["Elantra", "Accent", "Tucson", "Santa Fe", "Creta", "Kona", "Palisade", "Ioniq 5"]
+    },
+    {
+      "name": "Kia",
+      "models": ["Rio", "Forte", "Sportage", "Seltos", "Sorento", "Soul", "Telluride", "K5", "Niro"]
+    },
+    {
+      "name": "Mazda",
+      "models": ["Mazda 3", "Mazda 6", "CX-3", "CX-30", "CX-5", "CX-9", "MX-5"]
+    },
+    {
+      "name": "BMW",
+      "models": ["Series 3", "Series 5", "X1", "X3", "X5", "X7", "Series 7", "M3", "M5"]
+    },
+    {
+      "name": "Mercedes-Benz",
+      "models": ["Class C", "Class E", "GLC", "GLE", "GLA", "Class S", "GLB", "GLS"]
+    },
+    {
+      "name": "Audi",
+      "models": ["A3", "A4", "A6", "Q3", "Q5", "Q7", "Q8", "e-tron"]
+    },
+    {
+      "name": "Jeep",
+      "models": ["Wrangler", "Cherokee", "Grand Cherokee", "Compass", "Renegade", "Gladiator"]
+    },
+    {
+      "name": "Tesla",
+      "models": ["Model 3", "Model Y", "Model S", "Model X", "Cybertruck"]
+    },
+    {
+      "name": "GMC",
+      "models": ["Sierra", "Terrain", "Acadia", "Yukon", "Canyon"]
+    },
+    {
+      "name": "Dodge",
+      "models": ["Challenger", "Charger", "Durango", "Journey", "Ram 1500", "Ram 2500"]
+    },
+    {
+      "name": "Subaru",
+      "models": ["Impreza", "Forester", "Outback", "Crosstrek", "WRX", "Ascent"]
+    },
+    {
+      "name": "Mitsubishi",
+      "models": ["L200", "Outlander", "ASX", "Mirage", "Montero Sport"]
+    },
+    {
+      "name": "Renault",
+      "models": ["Kwid", "Duster", "Logan", "Sandero", "Stepway", "Captur", "Koleos"]
+    },
+    {
+      "name": "Peugeot",
+      "models": ["208", "301", "2008", "3008", "5008", "Partner"]
+    }
+  ],
+  "categories": {
+    "Cars": ["Toyota", "Nissan", "Honda", "Volkswagen", "Mazda", "Hyundai", "Kia"],
+    "Minivan": ["Honda Odyssey", "Toyota Sienna", "Kia Carnival", "Chrysler Pacifica"],
+    "Luxury Cars": ["BMW", "Mercedes-Benz", "Audi", "Tesla", "Jeep", "Cadillac", "Porsche", "Lexus"],
+    "Vans": ["Chevrolet Express", "Ford Transit", "Mercedes-Benz Sprinter", "Ram ProMaster"]
+  }
+}
