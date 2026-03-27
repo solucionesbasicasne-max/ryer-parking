@@ -9,44 +9,54 @@ import Caja from './modules/Caja'
 import Login from './modules/Login'
 import UserManagement from './modules/UserManagement'
 import Settings from './modules/Settings'
-import { db, seedDatabase } from './db/db'
+import { seedSupabase } from './lib/initDb'
+import { getCapacidad } from './services/configService'
+import { countActiveEntries } from './services/entradasService'
+import { getSesionActiva } from './services/cajaService'
 import { Sun, Moon, Menu } from 'lucide-react'
 
 const MODULE_LABELS = {
   dashboard: 'Dashboard',
-  checkin: 'Entrada',
-  checkout: 'Salida',
-  clients: 'Clientes',
-  reports: 'Reportes',
-  caja: 'Caja',
-  users: 'Usuarios',
-  settings: 'Ajustes',
+  checkin:   'Entrada',
+  checkout:  'Salida',
+  clients:   'Clientes',
+  reports:   'Reportes',
+  caja:      'Caja',
+  users:     'Usuarios',
+  settings:  'Ajustes',
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [user, setUser] = useState(null)
-  const [capacity, setCapacity] = useState({ total: 0, occupied: 0 })
+  const [activeTab, setActiveTab]   = useState('dashboard')
+  const [user, setUser]             = useState(null)
+  const [capacity, setCapacity]     = useState({ total: 0, occupied: 0 })
   const [isCajaOpen, setIsCajaOpen] = useState(false)
-  const [theme, setTheme] = useState(localStorage.getItem('ryer_theme') || 'dark')
+  const [theme, setTheme]           = useState(localStorage.getItem('ryer_theme') || 'dark')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    seedDatabase()
+    // Inicializar y seed Supabase
+    seedSupabase()
+
     const savedUser = localStorage.getItem('ryer_user')
     if (savedUser) setUser(JSON.parse(savedUser))
 
     const fetchData = async () => {
-      const total = (await db.config.get('capacity'))?.value || 50
-      const occupied = await db.entries.where('status').equals('active').count()
-      setCapacity({ total, occupied })
-
-      const activeSession = await db.sessions.where('status').equals('open').first()
-      setIsCajaOpen(!!activeSession)
+      try {
+        const [total, occupied, activeSession] = await Promise.all([
+          getCapacidad(),
+          countActiveEntries(),
+          getSesionActiva(),
+        ])
+        setCapacity({ total, occupied })
+        setIsCajaOpen(!!activeSession)
+      } catch (err) {
+        console.error('[App] Error cargando datos:', err.message)
+      }
     }
 
     fetchData()
-    const interval = setInterval(fetchData, 5000)
+    const interval = setInterval(fetchData, 10000)
     return () => clearInterval(interval)
   }, [])
 
@@ -71,13 +81,13 @@ function App() {
     const commonProps = { isCajaOpen, user, setIsCajaOpen }
     switch (activeTab) {
       case 'dashboard': return <Dashboard capacity={capacity} {...commonProps} />
-      case 'checkin':   return <CheckIn capacity={capacity} {...commonProps} />
-      case 'checkout':  return <CheckOut {...commonProps} />
-      case 'clients':   return <Clients {...commonProps} />
-      case 'reports':   return <Reports {...commonProps} />
-      case 'caja':      return <Caja {...commonProps} />
+      case 'checkin':   return <CheckIn   capacity={capacity} {...commonProps} />
+      case 'checkout':  return <CheckOut  {...commonProps} />
+      case 'clients':   return <Clients   {...commonProps} />
+      case 'reports':   return <Reports   {...commonProps} />
+      case 'caja':      return <Caja      {...commonProps} />
       case 'users':     return <UserManagement {...commonProps} />
-      case 'settings':  return <Settings {...commonProps} />
+      case 'settings':  return <Settings  {...commonProps} />
       default:          return <Dashboard {...commonProps} />
     }
   }
@@ -96,9 +106,8 @@ function App() {
       />
 
       <main style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', maxHeight: '100vh', width: '100%' }}>
-        {/* ── Top bar (siempre visible en móvil) ── */}
+        {/* ── Top bar ── */}
         <header className="app-header flex-between">
-          {/* Botón hamburguesa — solo en móvil */}
           <button
             id="mobile-menu-btn"
             className="btn mobile-menu-btn"
@@ -129,7 +138,9 @@ function App() {
             <div className="card user-chip">
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{user.username.toUpperCase()}</p>
-                <p style={{ fontSize: '0.7rem', color: user.role === 'Admin' ? 'var(--brand-primary)' : 'var(--success)' }}>{user.role}</p>
+                <p style={{ fontSize: '0.7rem', color: user.role === 'Admin' ? 'var(--brand-primary)' : 'var(--success)' }}>
+                  {user.role}
+                </p>
               </div>
               <div className="avatar">
                 <span>{user.username[0].toUpperCase()}</span>

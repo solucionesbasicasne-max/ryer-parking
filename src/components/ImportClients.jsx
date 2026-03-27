@@ -1,61 +1,49 @@
-import React, { useState } from 'react';
-import { db } from '../db/db';
-import { Upload, FileText, CheckCircle, AlertTriangle, X } from 'lucide-react';
-import Papa from 'papaparse';
+import React, { useState } from 'react'
+import { createClient, clientExistsByPhone } from '../services/clientesService'
+import { Upload, FileText, CheckCircle, AlertTriangle } from 'lucide-react'
+import Papa from 'papaparse'
 
 const ImportClients = ({ onComplete }) => {
-  const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(false)
+  const [stats, setStats]     = useState(null)
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]
+    if (!file) return
 
-    setLoading(true);
+    setLoading(true)
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
-        let imported = 0;
-        let skipped = 0;
-        const errors = [];
+        let imported = 0
+        let skipped  = 0
 
         for (const row of results.data) {
           try {
-            // Basic validation
-            if (!row.Nombre || !row.Telefono) {
-              skipped++;
-              continue;
-            }
+            if (!row.Nombre || !row.Telefono) { skipped++; continue }
 
-            // Duplicate check
-            const exists = await db.clients
-              .where('phone').equals(row.Telefono)
-              .first();
-            
-            if (exists) {
-              skipped++;
-              continue;
-            }
+            // Verificar duplicado por teléfono
+            const exists = await clientExistsByPhone(row.Telefono)
+            if (exists) { skipped++; continue }
 
-            await db.clients.add({
-              name: row.Nombre,
+            await createClient({
+              name:  row.Nombre,
               phone: row.Telefono,
               email: row.Correo || '',
-              address: row.Direccion || ''
-            });
-            imported++;
-          } catch (err) {
-            errors.push(err.message);
+            })
+            imported++
+          } catch {
+            skipped++
           }
         }
 
-        setStats({ imported, skipped, errors });
-        setLoading(false);
-        if (onComplete) onComplete();
-      }
-    });
-  };
+        setStats({ imported, skipped })
+        setLoading(false)
+        if (onComplete) onComplete()
+      },
+    })
+  }
 
   return (
     <div className="card" style={{ background: 'var(--bg-secondary)', border: '2px dashed var(--border)' }}>
@@ -63,7 +51,7 @@ const ImportClients = ({ onComplete }) => {
         <FileText size={40} color="var(--brand-primary)" style={{ marginBottom: '1rem' }} />
         <h3>Importación Masiva de Clientes</h3>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-          Suba un archivo CSV con las columnas: <b>Nombre, Telefono, Direccion, Correo</b>
+          CSV con columnas: <b>Nombre, Telefono, Correo</b>
         </p>
 
         {!loading && !stats && (
@@ -73,7 +61,7 @@ const ImportClients = ({ onComplete }) => {
           </label>
         )}
 
-        {loading && <p>Procesando datos...</p>}
+        {loading && <p style={{ color: 'var(--text-secondary)' }}>Procesando datos en Supabase...</p>}
 
         {stats && (
           <div style={{ marginTop: '1rem', textAlign: 'left' }}>
@@ -82,17 +70,17 @@ const ImportClients = ({ onComplete }) => {
                 <CheckCircle size={16} /> <b>{stats.imported}</b> Importados
               </div>
               <div style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <AlertTriangle size={16} /> <b>{stats.skipped}</b> Omitidos (Duplicados o Inválidos)
+                <AlertTriangle size={16} /> <b>{stats.skipped}</b> Omitidos
               </div>
             </div>
-            <button className="btn btn-sm" style={{ width: '100%' }} onClick={() => setStats(null)}>
+            <button className="btn" style={{ width: '100%' }} onClick={() => setStats(null)}>
               Cerrar Resultado
             </button>
           </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ImportClients;
+export default ImportClients

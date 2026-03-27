@@ -1,41 +1,27 @@
-import Dexie from 'dexie';
+import Dexie from 'dexie'
 
-export const db = new Dexie('RyerParkingDB');
+/**
+ * Dexie se mantiene ÚNICAMENTE para almacenar fotos de vehículos (base64).
+ * Todos los demás datos operativos van a Supabase.
+ */
+const localDb = new Dexie('RyerParkingPhotos')
+localDb.version(1).stores({
+  photos: 'ticketNumber',
+})
 
-db.version(2).stores({
-  clients: '++id, name, phone, email',
-  vehicles: '++id, plate, brand, model, clientId',
-  entries: '++id, ticketNumber, plate, entryTime, exitTime, status, total, vehicleType, serviceType, nextPaymentDate, clientId',
-  sessions: '++id, openTime, closeTime, initialBalance, finalBalance, status',
-  rates: 'id, type, price6to6, price12h, price24h, isActive',
-  users: '++id, username, password, role',
-  config: 'id, key, value'
-}).upgrade(tx => {
-  // Logic for upgrading from v1 to v2 if needed
-});
+/**
+ * Guarda las 4 fotos de un vehículo asociadas a un número de ticket.
+ * @param {string} ticketNumber
+ * @param {{ front, back, left, right }} photos - base64 data URLs
+ */
+export const savePhotos = (ticketNumber, photos) =>
+  localDb.photos.put({ ticketNumber, ...photos })
 
-export const seedDatabase = async () => {
-  // Rates
-  const ratesCount = await db.rates.count();
-  if (ratesCount === 0) {
-    await db.rates.bulkAdd([
-      { id: 'cars', type: 'Cars', price6to6: 20, price12h: 25, price24h: 30, isActive: true },
-      { id: 'minivan', type: 'Minivan', price6to6: 25, price12h: 30, price24h: 35, isActive: true },
-      { id: 'luxury', type: 'Luxury Cars', price6to6: 25, price12h: 30, price24h: 35, isActive: true },
-      { id: 'vans', type: 'Vans', price6to6: 30, price12h: 35, price24h: 40, isActive: true },
-    ]);
-  }
-
-  // Users
-  const userCount = await db.users.count();
-  if (userCount === 0) {
-    await db.users.add({ username: 'admin', password: 'admin123', role: 'Admin' });
-    await db.users.add({ username: 'operator', password: 'op123', role: 'Operator' });
-  }
-
-  // Config
-  const configExists = await db.config.get('capacity');
-  if (!configExists) {
-    await db.config.add({ id: 'capacity', value: 50 });
-  }
-};
+/**
+ * Recupera las fotos de un vehículo por su número de ticket.
+ * Retorna objeto con claves front/back/left/right (null si no existen).
+ */
+export const getPhotos = async (ticketNumber) => {
+  const record = await localDb.photos.get(ticketNumber)
+  return record ?? { front: null, back: null, left: null, right: null }
+}
